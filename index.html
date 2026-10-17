@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Sticky Numbers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="See how much a number you were just shown pulls your estimates toward it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow column, phone first. A number "reel" card, the question, then the estimate input. Results: dot plot of every answer, split by high and low numbers. Same family look as Multitask Myth. */
+:root{
+  --bg:#EDF0F5; --panel:#FFFFFF; --ink:#141B2D; --muted:#5A6378; --line:#D5DAE4;
+  --low:#2F45C8; --low-bg:#E3E7FB; --high:#C2580E; --high-bg:#FBEBDD;
+  --pull:#C62D3A; --bad:#C62D3A; --reel:#141B2D; --reel-fg:#F4F6FA;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1320; --panel:#181D2D; --ink:#E8EBF3; --muted:#9AA2B6; --line:#2B3246;
+  --low:#9BABFF; --low-bg:#222B52; --high:#F2A35E; --high-bg:#3D2715;
+  --pull:#FF7F88; --bad:#FF7F88; --reel:#E8EBF3; --reel-fg:#141B2D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1320; --panel:#181D2D; --ink:#E8EBF3; --muted:#9AA2B6; --line:#2B3246;
+  --low:#9BABFF; --low-bg:#222B52; --high:#F2A35E; --high-bg:#3D2715;
+  --pull:#FF7F88; --bad:#FF7F88; --reel:#E8EBF3; --reel-fg:#141B2D; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1{font:700 34px/1 var(--f-display);letter-spacing:-0.02em;margin:0;text-wrap:balance}
+h1 .p{color:var(--pull)}
+.tag{color:var(--muted);font-size:14px;margin:6px 0 0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.step{font:500 14px var(--f-body);color:var(--muted)}
+.prog{font:500 14px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.dots{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px}
+.dots i{height:6px;border-radius:3px;background:var(--bg)}
+.dots i.on{background:var(--ink)}
+.reel{background:var(--reel);color:var(--reel-fg);border-radius:12px;padding:18px 16px;text-align:center}
+.reel small{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+.reel b{display:block;font:500 44px/1.15 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-0.02em;margin-top:4px;min-height:52px}
+.q{font:700 21px/1.3 var(--f-display);margin:0;text-wrap:balance}
+.unit{color:var(--muted);font-size:14px;margin:-8px 0 0}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{height:52px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font:500 16px var(--f-body);cursor:pointer;width:100%;touch-action:manipulation}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.pick{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.btn.pick.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.btn:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.btn:disabled{opacity:.4;cursor:default}
+.est{display:flex;gap:8px}
+.est input{flex:1;min-width:0;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:500 20px var(--f-mono);padding:0 14px}
+.est .btn{width:auto;padding:0 20px}
+.err{font-size:13px;color:var(--bad);min-height:18px;margin:-6px 0 0}
+.row{display:flex;gap:8px}
+.plain{background:var(--bg);border-radius:12px;padding:14px 16px}
+.plain h3{font:700 17px/1.3 var(--f-display);margin:0 0 4px}
+.plain p{margin:8px 0 0;font-size:15px;max-width:62ch}
+.plain p b{font-weight:500}
+.intro p{margin:0;font-size:15px}
+.intro b{font-weight:500}
+h2{font:700 22px/1.2 var(--f-display);margin:0;text-wrap:balance}
+.note{font-size:14px;color:var(--muted);margin:0}
+.chart{width:100%;height:auto;display:block}
+.chart text{font:400 11px var(--f-body);fill:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:50%;display:inline-block}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.st{background:var(--bg);border-radius:10px;padding:10px 12px;min-width:0}
+.st small{display:block;font-size:12px;color:var(--muted)}
+.st b{font:500 20px var(--f-mono);font-variant-numeric:tabular-nums}
+.st span{display:block;font-size:12px;color:var(--muted)}
+.tbl-wrap{overflow-x:auto}
+.ans{width:100%;border-collapse:collapse;font-size:13px;min-width:380px}
+.ans th,.ans td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+.ans th{font:500 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ans td{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ans td:first-child,.ans th:first-child{text-align:left;font-family:var(--f-body)}
+.tagL,.tagH{display:inline-block;font:500 11px var(--f-body);padding:1px 6px;border-radius:4px}
+.tagL{background:var(--low-bg);color:var(--low)} .tagH{background:var(--high-bg);color:var(--high)}
+.hist{font:400 13px var(--f-mono);font-variant-numeric:tabular-nums;width:100%;border-collapse:collapse}
+.hist td,.hist th{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right}
+.hist th{font:500 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hist td:first-child,.hist th:first-child{text-align:left}
+details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+summary{cursor:pointer;font:700 17px var(--f-display)}
+details p{font-size:15px;margin:10px 0 0;max-width:62ch}
+details p b,.sci b{font-weight:500}
+.sci-h{font:700 16px/1.3 var(--f-display);margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.sci{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:10px;font-size:15px;max-width:62ch}
+.sci span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.foot{font-size:12px;color:var(--muted);text-align:center}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Sticky <span class="p">Numbers</span></h1>
+    <p class="tag">12 quick estimates. Before each one, the game shows you a number.</p>
+  </header>
+
+  <section class="panel" id="play">
+    <div class="intro" id="intro">
+      <p>For each question, the game first shows a number and asks if the answer is more or less. Then you give your own best guess. <b>No looking things up.</b> Rough guesses are fine.</p>
+    </div>
+    <div class="top" id="topRow" hidden>
+      <div class="step" id="step"></div>
+      <div class="prog" id="prog"></div>
+    </div>
+    <div class="dots" id="dots"></div>
+    <div id="card" hidden>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="reel"><small>The game's number</small><b id="reel">0</b></div>
+        <p class="q" id="q"></p>
+        <p class="unit" id="unit"></p>
+        <div id="stageA">
+          <div class="choice">
+            <button class="btn pick" id="less">Less than that</button>
+            <button class="btn pick" id="more">More than that</button>
+          </div>
+        </div>
+        <div id="stageB" hidden>
+          <label for="guess" class="note" style="display:block;margin-bottom:6px">Your best guess</label>
+          <div class="est">
+            <input id="guess" type="text" inputmode="decimal" autocomplete="off" placeholder="Type a number">
+            <button class="btn" id="submit">Next</button>
+          </div>
+          <p class="err" id="err" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+    <button class="btn" id="start">Start</button>
+  </section>
+
+  <section class="panel" id="results" hidden>
+    <h2 id="verdict"></h2>
+    <p class="note" id="meaning"></p>
+    <svg class="chart" id="chart" viewBox="0 0 480 250" role="img" aria-label="Each answer placed by how far it was from the truth, split by high and low numbers"></svg>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--high)"></i>After a high number</span>
+      <span><i class="sw" style="background:var(--low)"></i>After a low number</span>
+      <span><i class="sw" style="background:var(--pull);border-radius:2px;height:3px;width:14px"></i>Group average</span>
+    </div>
+    <div class="stats">
+      <div class="st"><small>High vs low gap</small><b id="gap"></b><span>How much higher your guesses ran after high numbers</span></div>
+      <div class="st"><small>Pull toward the number</small><b id="pullv"></b><span>Share of the way you moved toward it</span></div>
+    </div>
+    <div class="plain">
+      <h3>What this means, in plain English</h3>
+      <div id="plain"></div>
+    </div>
+    <p class="note" id="how"></p>
+    <div class="tbl-wrap">
+      <table class="ans"><thead><tr><th>Question</th><th>Number</th><th>You</th><th>Answer</th></tr></thead><tbody id="ans"></tbody></table>
+    </div>
+    <div class="row"><button class="btn" id="again">Play again</button></div>
+    <div id="histWrap" hidden>
+      <table class="hist"><thead><tr><th>Run</th><th>Gap</th><th>Pull</th></tr></thead><tbody id="hist"></tbody></table>
+      <p class="note" id="histAvg" style="margin-top:8px"></p>
+    </div>
+  </section>
+
+  <details>
+    <summary>Why the number sticks</summary>
+    <p><b>You start from it, then stop too soon.</b> When you're unsure, your mind grabs the nearest number as a starting point and adjusts from there. People tend to stop adjusting once the answer feels plausible, which leaves them short, still near where they started.</p>
+    <p><b>The question primes you.</b> Asking "more or less than this?" makes you test the idea that the answer might be close to that number. Your mind pulls up facts that fit it, and those facts shape your guess.</p>
+    <p><b>Knowing doesn't fix it.</b> You were told up front that the game shows you a number first. Most people are still pulled. Warning people about anchoring barely reduces it.</p>
+    <p><b>How to read your score.</b> The gap compares your guesses after high numbers with your guesses after low numbers, relative to the true answers. Zero means the number had no effect. The pull says how far you moved toward the number: 0% means not at all, 100% means you just repeated it.</p>
+    <p><b>What this can't tell you.</b> Twelve questions is a small sample, and how much you already knew matters. If you knew an answer cold, the number had nothing to pull on. The history table is more reliable than one run.</p>
+
+    <h3 class="sci-h">The science</h3>
+    <ul class="sci">
+      <li><b>The original wheel of fortune.</b> People watched a wheel stop on 10 or 65, then estimated the share of African countries in the United Nations. The low group's typical guess was 25%, the high group's 45%. The wheel was rigged, and it still moved them. <span>Tversky and Kahneman, 1974</span></li>
+      <li><b>Even absurd numbers work.</b> Asked whether Gandhi died before or after age 9, people then guessed he died at about 50 on average. Asked about age 140, they guessed about 67. He died at 78. <span>Strack and Mussweiler, 1997</span></li>
+      <li><b>Experts are not immune.</b> Real estate agents valued the same house higher when its listing price was higher. Most said they hadn't used the listing price at all. <span>Northcraft and Neale, 1987</span></li>
+      <li><b>Not even judges.</b> Experienced judges rolled loaded dice that landed on 3 or 9, then sentenced a hypothetical shoplifter. Those who rolled 9 gave longer sentences, about 8 months versus 5. <span>Englich, Mussweiler and Strack, 2006</span></li>
+      <li><b>It holds up.</b> In a large project that re-ran classic psychology studies across dozens of labs, anchoring was one of the strongest and most reliable effects. <span>Klein and colleagues, Many Labs, 2014</span></li>
+      <li><b>Warnings barely help.</b> Telling people about anchoring in advance did little to reduce it. <span>Wilson and colleagues, 1996</span></li>
+      <li><b>First offers anchor deals.</b> In negotiations, whoever makes the first offer tends to pull the final price toward it. Thinking about the other side's alternatives weakened the pull. <span>Galinsky and Mussweiler, 2001</span></li>
+      <li><b>Not every famous result is as strong as reported.</b> A well-known study found people with higher Social Security digits bid more for products. Later replications found a much smaller effect. Anchoring is real, but its size depends on the setting. <span>Ariely, Loewenstein and Prelec, 2003; Maniadis, Tufano and List, 2014</span></li>
+    </ul>
+    <p><b>What's still debated.</b> Researchers disagree on the main cause. One view is that we adjust from the number and stop too early. Another is that the "more or less" question makes facts near the number easier to recall. Studies support both, and they likely work together.</p>
+  </details>
+
+  <p class="foot">Based on Tversky and Kahneman 1974, Strack and Mussweiler 1997, and the Many Labs replication project.</p>
+</div>
+
+<script>
+(function(){
+  var BANK=[
+    {q:"How tall is the Eiffel Tower?",u:"in feet",a:1083},
+    {q:"How tall is Mount Everest?",u:"in feet",a:29032},
+    {q:"How far is the Moon from Earth, on average?",u:"in miles",a:238900},
+    {q:"How many countries are in Africa?",u:"countries",a:54},
+    {q:"How many bones are in the adult human body?",u:"bones",a:206},
+    {q:"How many elements are on the periodic table?",u:"elements",a:118},
+    {q:"How fast does sound travel through air at sea level?",u:"in miles per hour, at room temperature",a:767},
+    {q:"How long is an African elephant pregnant?",u:"in months",a:22},
+    {q:"How many US states border Canada?",u:"states",a:13},
+    {q:"How tall is the Burj Khalifa in Dubai?",u:"in feet",a:2717},
+    {q:"How many bones are in one human hand, including the wrist?",u:"bones",a:27},
+    {q:"What is Earth's diameter?",u:"in miles",a:7918}
+  ];
+  var S,raf=null;
+  function $(id){return document.getElementById(id)}
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+  function round2(x){if(x<10)return Math.max(1,Math.round(x));var p=Math.pow(10,Math.floor(Math.log10(x))-1);return Math.round(x/p)*p}
+  function fmt(x){return x.toLocaleString("en-US",{maximumFractionDigits:1})}
+  function fresh(){var qs=shuffle(BANK.slice()),kinds=shuffle([0,0,0,0,0,0,1,1,1,1,1,1]);
+    return {i:0,items:qs.map(function(b,k){var hi=kinds[k]===1,f=hi?2+Math.random()*0.8:0.35+Math.random()*0.15;
+      var anc=round2(b.a*f);if(anc===b.a)anc=hi?anc+1:Math.max(1,anc-1);
+      return {q:b.q,u:b.u,a:b.a,hi:hi,anc:anc,dir:null,est:null}}),stage:"intro"}}
+
+  function dots(){var h="";for(var k=0;k<12;k++)h+='<i class="'+(k<S.i?"on":"")+'"></i>';$("dots").innerHTML=h}
+  function spin(target){
+    var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,el=$("reel");
+    cancelAnimationFrame(raf);
+    if(reduce){el.textContent=fmt(target);return}
+    var t0=null,dur=700,digits=String(target).length;
+    function f(now){if(t0===null)t0=now;var p=(now-t0)/dur;
+      if(p>=1){el.textContent=fmt(target);return}
+      var r=Math.floor(Math.pow(10,digits-1)+Math.random()*9*Math.pow(10,digits-1));el.textContent=fmt(r);raf=requestAnimationFrame(f)}
+    raf=requestAnimationFrame(f)}
+
+  function show(){
+    var it=S.items[S.i];
+    $("intro").hidden=true;$("start").hidden=true;$("topRow").hidden=false;$("card").hidden=false;
+    $("step").textContent="Question "+(S.i+1)+" of 12";$("prog").textContent="";
+    $("q").textContent=it.q;$("unit").textContent="Answer "+it.u;
+    $("stageA").hidden=false;$("stageB").hidden=true;$("less").className="btn pick";$("more").className="btn pick";
+    $("guess").value="";$("err").textContent="";
+    spin(it.anc);dots()}
+  function pick(d){var it=S.items[S.i];it.dir=d;$("less").className="btn pick"+(d==="less"?" on":"");$("more").className="btn pick"+(d==="more"?" on":"");
+    $("stageB").hidden=false;setTimeout(function(){$("guess").focus()},50)}
+  function parse(s){s=String(s).replace(/[,\s]/g,"");if(!/^\d*\.?\d+$/.test(s))return null;var v=parseFloat(s);return v>0?v:null}
+  function submit(){var v=parse($("guess").value);
+    if(v===null){$("err").textContent="Enter a number above zero, like 250 or 12,000.";return}
+    S.items[S.i].est=v;S.i++;
+    if(S.i>=12){results();return}
+    show()}
+
+  function mean(a){var s=0;a.forEach(function(x){s+=x});return a.length?s/a.length:0}
+  function results(){
+    dots();$("card").hidden=true;$("topRow").hidden=true;
+    var H=S.items.filter(function(x){return x.hi}),L=S.items.filter(function(x){return !x.hi});
+    function le(x){return Math.log(x.est/x.a)} function la(x){return Math.log(x.anc/x.a)}
+    var mH=mean(H.map(le)),mL=mean(L.map(le)),aH=mean(H.map(la)),aL=mean(L.map(la));
+    var ratio=Math.exp(mH-mL),pull=(mH-mL)/(aH-aL);
+    var gapPct=Math.round((ratio-1)*100),pullPct=Math.round(pull*100);
+    $("gap").textContent=(gapPct>=0?"+":"−")+Math.abs(gapPct)+"%";
+    $("pullv").textContent=pullPct+"%";
+    if(gapPct>=20){$("verdict").textContent="The numbers pulled you. Your guesses ran "+gapPct+"% higher after high numbers.";}
+    else if(gapPct>0){$("verdict").textContent="A small pull this run: "+gapPct+"% higher after high numbers.";}
+    else{$("verdict").textContent="No pull this run. The numbers didn't move your guesses.";}
+    $("meaning").textContent=pullPct>0?("You moved about "+pullPct+"% of the way toward the game's number. In studies with this kind of setup, people typically move about halfway, though that figure comes from groups, not one person's 12 answers."):"You didn't move toward the game's numbers on average. That's unusual. It can happen if you knew many answers, or by chance in 12 questions.";
+    $("how").textContent="How the numbers were picked: for 6 questions the number was set at random well below the true answer (about a third to a half of it). For the other 6 it was set well above (about 2 to 3 times it). The game didn't know your guess. It only knew the answer.";
+    $("plain").innerHTML=plain(gapPct,pullPct,ratio,mH,mL);
+    chart(mH,mL);
+    $("ans").innerHTML=S.items.map(function(x){return "<tr><td>"+x.q.replace(/\?.*$/,"?")+"</td><td><span class=\""+(x.hi?"tagH":"tagL")+"\">"+(x.hi?"High":"Low")+"</span> "+fmt(x.anc)+"</td><td>"+fmt(x.est)+"</td><td>"+fmt(x.a)+"</td></tr>"}).join("");
+    $("results").hidden=false;
+    save({d:Date.now(),g:gapPct,p:pullPct});
+    $("results").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
+
+  function plain(gapPct,pullPct,ratio,mH,mL){
+    var p=[];
+    if(gapPct>=20)p.push("<b>The short version.</b> When the game showed you a big number, you guessed big. When it showed a small number, you guessed small. The number had nothing to do with the real answer, but it still steered you. That's anchoring.");
+    else if(gapPct>0)p.push("<b>The short version.</b> The game's numbers nudged your guesses a little, but not much this time. Big numbers led to slightly bigger guesses.");
+    else p.push("<b>The short version.</b> This time, the game's numbers didn't steer your guesses. That's uncommon. It can happen if you already knew many of the answers.");
+    var side=function(m){return Math.abs(m)<0.1?"near the line":(m>0?"to the right, meaning too high":"to the left, meaning too low")};
+    p.push("<b>Reading the chart.</b> Each dot is one of your guesses. The dashed line in the middle is the right answer. Dots to the right are guesses that were too high, and dots to the left were too low. Orange dots came after a high number, blue dots after a low one. If the numbers had no effect, both colors would sit in the same place. Your orange dots landed "+side(mH)+", and your blue dots landed "+side(mL)+". The red marks show where each color landed on average.");
+    var times=ratio>=1.95?"about "+ratio.toFixed(1)+" times as big as":"about "+Math.round((ratio-1)*100)+"% bigger than";
+    if(gapPct>0)p.push("<b>The gap, "+(gapPct>=0?"+":"")+gapPct+"%.</b> Compared with the true answers, your guesses after a high number came out "+times+" your guesses after a low number. Same kinds of questions, same person. The only difference was the number you saw first.");
+    else p.push("<b>The gap, "+gapPct+"%.</b> Your guesses after high numbers were no bigger than your guesses after low numbers. A gap of zero means the numbers had no effect.");
+    p.push("<b>The pull, "+pullPct+"%.</b> Think of it as a tug-of-war between the true answer and the game's number. If you had ignored the number completely, you'd score 0%. If you had just copied it, you'd score 100%. "+(pullPct>=40&&pullPct<=60?"You landed near halfway, which is about where most people end up.":(pullPct>60?"You landed past halfway, so the number had more say than the truth.":(pullPct>0?"You landed under halfway, so the truth had more say than the number.":"You weren't pulled at all this time.")) ));
+    var best=null,bv=0;S.items.forEach(function(x){var v=x.hi?Math.log(x.est/x.a):-Math.log(x.est/x.a);if(v>bv){bv=v;best=x}});
+    if(best&&bv>Math.log(1.3))p.push("<b>Your clearest example.</b> "+best.q.replace(/\?.*$/,"")+"? The game showed you "+fmt(best.anc)+". You guessed "+fmt(best.est)+". The real answer is "+fmt(best.a)+". Your guess landed on the "+(best.hi?"high":"low")+" side, the same side as the game's number.");
+    p.push("<b>Why it matters.</b> This happens all the time outside this game. A price tag that says \"was $200, now $99.\" The first offer in a salary talk or a car deal. A home's listing price. In each case, the first number you see pulls your sense of what's fair. A simple defense: before you look at someone else's number, decide on your own.");
+    return p.map(function(t){return "<p>"+t+"</p>"}).join("");
+  }
+
+  function chart(mH,mL){
+    var W=480,Hh=250,Lp=16,Rp=16,T=26,B=40,lim=Math.log(16);
+    function X(lr){lr=Math.max(-lim,Math.min(lim,lr));return Lp+(lr+lim)/(2*lim)*(W-Lp-Rp)}
+    var rowH={hi:T+40,lo:T+120},g="";
+    [[-Math.log(8),"8× low"],[-Math.log(2),"2× low"],[0,"right"],[Math.log(2),"2× high"],[Math.log(8),"8× high"]].forEach(function(t){
+      g+='<line x1="'+X(t[0])+'" x2="'+X(t[0])+'" y1="'+T+'" y2="'+(Hh-B+6)+'" stroke="'+(t[0]===0?"var(--muted)":"var(--line)")+'" stroke-width="'+(t[0]===0?1.5:1)+'"'+(t[0]===0?' stroke-dasharray="4 3"':'')+'/>';
+      g+='<text x="'+X(t[0])+'" y="'+(Hh-B+22)+'" text-anchor="middle">'+t[1]+'</text>'});
+    g+='<text x="'+(W/2)+'" y="'+(Hh-4)+'" text-anchor="middle">your guess compared with the true answer</text>';
+    g+='<text x="'+Lp+'" y="'+(rowH.hi-26)+'">After a high number</text><text x="'+Lp+'" y="'+(rowH.lo-26)+'">After a low number</text>';
+    S.items.forEach(function(x,k){var lr=Math.log(x.est/x.a),y=(x.hi?rowH.hi:rowH.lo)+((k%3)-1)*7;
+      g+='<circle cx="'+X(lr)+'" cy="'+y+'" r="6" fill="'+(x.hi?"var(--high)":"var(--low)")+'" fill-opacity=".85"/>'});
+    [[mH,rowH.hi],[mL,rowH.lo]].forEach(function(m){g+='<line x1="'+X(m[0])+'" x2="'+X(m[0])+'" y1="'+(m[1]-16)+'" y2="'+(m[1]+16)+'" stroke="var(--pull)" stroke-width="3" stroke-linecap="round"/>'});
+    $("chart").innerHTML=g}
+
+  function load(){try{return JSON.parse(localStorage.getItem("sticky.runs")||"[]")}catch(e){return []}}
+  function save(r){var a=load();a.unshift(r);a=a.slice(0,20);try{localStorage.setItem("sticky.runs",JSON.stringify(a))}catch(e){}hist(a)}
+  function hist(a){if(!a.length){$("histWrap").hidden=true;return}$("histWrap").hidden=false;
+    $("hist").innerHTML=a.slice(0,8).map(function(r){var d=new Date(r.d);
+      return "<tr><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+d.toTimeString().slice(0,5)+"</td><td>"+(r.g>=0?"+":"")+r.g+"%</td><td>"+r.p+"%</td></tr>"}).join("");
+    var s=0;a.forEach(function(r){s+=r.p});
+    $("histAvg").textContent=a.length>1?("Average pull across "+a.length+" runs: "+Math.round(s/a.length)+"%. Repeat runs reuse the same 12 questions, so later runs measure memory more than anchoring."):"The questions repeat on replays, so your first run is the truest test."}
+
+  function reset(){S=fresh();cancelAnimationFrame(raf);$("intro").hidden=false;$("start").hidden=false;$("topRow").hidden=true;$("card").hidden=true;$("results").hidden=true;dots()}
+  $("start").addEventListener("click",function(){S.stage="play";show()});
+  $("less").addEventListener("click",function(){pick("less")});
+  $("more").addEventListener("click",function(){pick("more")});
+  $("submit").addEventListener("click",submit);
+  $("guess").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();submit()}});
+  $("guess").addEventListener("input",function(){$("err").textContent=""});
+  $("again").addEventListener("click",function(){reset();window.scrollTo({top:0})});
+  reset();hist(load());
+})();
+</script>
+
+</body>
+</html>
