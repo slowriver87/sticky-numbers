@@ -17,7 +17,7 @@
 :root{
   --bg:#EDF0F5; --panel:#FFFFFF; --ink:#141B2D; --muted:#5A6378; --line:#D5DAE4;
   --low:#2F45C8; --low-bg:#E3E7FB; --high:#C2580E; --high-bg:#FBEBDD;
-  --pull:#C62D3A; --bad:#C62D3A; --reel:#141B2D; --reel-fg:#F4F6FA;
+  --pull:#C62D3A; --bad:#C62D3A; --bad-bg:#FBE3E5; --good:#1C7A4E; --reel:#141B2D; --reel-fg:#F4F6FA;
   --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
@@ -25,11 +25,11 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0F1320; --panel:#181D2D; --ink:#E8EBF3; --muted:#9AA2B6; --line:#2B3246;
   --low:#9BABFF; --low-bg:#222B52; --high:#F2A35E; --high-bg:#3D2715;
-  --pull:#FF7F88; --bad:#FF7F88; --reel:#E8EBF3; --reel-fg:#141B2D; color-scheme:dark}}
+  --pull:#FF7F88; --bad:#FF7F88; --bad-bg:#43191E; --good:#5FD39A; --reel:#E8EBF3; --reel-fg:#141B2D; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0F1320; --panel:#181D2D; --ink:#E8EBF3; --muted:#9AA2B6; --line:#2B3246;
   --low:#9BABFF; --low-bg:#222B52; --high:#F2A35E; --high-bg:#3D2715;
-  --pull:#FF7F88; --bad:#FF7F88; --reel:#E8EBF3; --reel-fg:#141B2D; color-scheme:dark}
+  --pull:#FF7F88; --bad:#FF7F88; --bad-bg:#43191E; --good:#5FD39A; --reel:#E8EBF3; --reel-fg:#141B2D; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--f-body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
@@ -102,6 +102,46 @@ details p b,.sci b{font-weight:500}
 .dur{font:500 12px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 0}
 .back{font-size:13px;color:var(--muted);text-decoration:none}
 .back:hover{text-decoration:underline}
+.ans .rep{color:var(--muted)}
+details.sci-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+details.sci-box>summary{cursor:pointer;font:700 17px var(--f-display)}
+details.sci-box p{font-size:15px;margin:10px 0 0;max-width:62ch}
+details.sci-box p b{font-weight:500}
+.sci-h{font:700 16px/1.3 var(--f-display);margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.ml-quitbar{display:flex;justify-content:flex-end;align-items:center;gap:10px;min-height:40px}
+.ml-quit{position:relative;overflow:hidden;height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font:500 13px var(--f-body);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.ml-quit i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--bad-bg,var(--line));z-index:0}
+.ml-quit span{position:relative;z-index:1}
+.ml-quit.holding{color:var(--bad,var(--ink));border-color:var(--bad,var(--ink))}
+.ml-quit-hint{font-size:12px;color:var(--muted)}
+.ml-status{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ml-status h2{font:700 20px/1.2 var(--f-display);margin:0;text-wrap:balance}
+.ml-status p{margin:0;font-size:15px;max-width:62ch}
+.ml-status p b{font-weight:500}
+.ml-pill{display:inline-block;font:500 12px var(--f-body);padding:2px 10px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.ml-pill.ok{color:var(--good,var(--ink));border-color:currentColor}
+.ml-meter{height:6px;border-radius:3px;background:var(--bg);overflow:hidden}
+.ml-meter i{display:block;height:100%;background:var(--ink);border-radius:3px}
+.ml-trend{width:100%;height:auto;display:block}
+.ml-trend text{font:400 11px var(--f-body);fill:var(--muted)}
+.ml-link{background:none;border:0;padding:4px 0;color:var(--muted);font:400 13px var(--f-body);text-decoration:underline;cursor:pointer;align-self:flex-start}
+.ml-confirm{display:flex;flex-direction:column;gap:10px;font-size:14px}
+.ml-confirm-row{display:flex;gap:8px}
+.ml-btn{height:42px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);font:500 14px var(--f-body);cursor:pointer}
+.ml-btn.danger{background:var(--bad,#C62D3A);border-color:var(--bad,#C62D3A);color:var(--panel)}
+.ml-btn:focus-visible,.ml-link:focus-visible,.ml-quit:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.ml-src{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)}
+.ml-src li{overflow-wrap:anywhere}
+.ml-src .n{font-family:var(--f-mono);color:var(--ink)}
+.ml-src a{color:inherit}
+sup.c{font-size:11px;line-height:0}
+sup.c a{color:var(--muted);text-decoration:none}
+.howto{background:transparent!important;border:0!important;padding:0!important}
+.howto summary{font:500 14px var(--f-body)!important;color:var(--muted)}
+.howto p{font-size:14px!important;margin:8px 0 0!important}
+.rule{margin:0;font-size:16px}
+.rule b{font-weight:500}
+
 </style>
 
 <div class="wrap">
@@ -109,13 +149,19 @@ details p b,.sci b{font-weight:500}
   <header>
     <h1>Sticky <span class="p">Numbers</span></h1>
     <p class="tag">12 quick estimates. Before each one, the game shows you a number.</p>
-      <p class="dur">About 2 minutes</p>
+    <p class="dur">About 2 minutes</p>
   </header>
 
+  <p class="rule"><b>Say if the answer is more or less than the number shown, then guess.</b></p>
+  <details class="howto"><summary>How to play</summary>
+    <p>For each question, the game first shows a number and asks if the true answer is more or less. Then you type your own best guess. No looking things up. Rough guesses are fine.</p>
+    <p>Each round uses 12 questions you haven't seen before. The results explain how the numbers were picked.</p>
+    <p>To stop partway, hold the Quit button for one second. On a computer, press Esc twice.</p>
+  </details>
+
   <section class="panel" id="play">
-    <div class="intro" id="intro">
-      <p>For each question, the game first shows a number and asks if the answer is more or less. Then you give your own best guess. <b>No looking things up.</b> Rough guesses are fine.</p>
-    </div>
+    <div class="ml-quitbar" id="quitbar" hidden><span class="ml-quit-hint"></span><button class="ml-quit" id="quit" type="button"><i></i><span>Hold to quit</span></button></div>
+    <p class="note" id="bankNote"></p>
     <div class="top" id="topRow" hidden>
       <div class="step" id="step"></div>
       <div class="prog" id="prog"></div>
@@ -145,6 +191,8 @@ details p b,.sci b{font-weight:500}
     <button class="btn" id="start">Start</button>
   </section>
 
+  <section class="ml-status" id="mlstatus"></section>
+
   <section class="panel" id="results" hidden>
     <h2 id="verdict"></h2>
     <p class="note" id="meaning"></p>
@@ -157,6 +205,8 @@ details p b,.sci b{font-weight:500}
     <div class="stats">
       <div class="st"><small>High vs low gap</small><b id="gap"></b><span>How much higher your guesses ran after high numbers</span></div>
       <div class="st"><small>Pull toward the number</small><b id="pullv"></b><span>Share of the way you moved toward it</span></div>
+      <div class="st"><small>Toward your settled score</small><b id="sprog"></b><span id="sprogSub"></span></div>
+      <div class="st"><small>Questions left</small><b id="left"></b><span>Unseen questions in the bank</span></div>
     </div>
     <div class="plain">
       <h3>What this means, in plain English</h3>
@@ -169,127 +219,288 @@ details p b,.sci b{font-weight:500}
     <div class="row"><button class="btn" id="again">Play again</button></div>
     <div id="histWrap" hidden>
       <table class="hist"><thead><tr><th>Run</th><th>Gap</th><th>Pull</th></tr></thead><tbody id="hist"></tbody></table>
-      <p class="note" id="histAvg" style="margin-top:8px"></p>
+      <p class="note" id="histNote" style="margin-top:8px"></p>
     </div>
   </section>
 
-  <details>
-    <summary>Why the number sticks</summary>
-    <p><b>You start from it, then stop too soon.</b> When you're unsure, your mind grabs the nearest number as a starting point and adjusts from there. People tend to stop adjusting once the answer feels plausible, which leaves them short, still near where they started.</p>
-    <p><b>The question primes you.</b> Asking "more or less than this?" makes you test the idea that the answer might be close to that number. Your mind pulls up facts that fit it, and those facts shape your guess.</p>
-    <p><b>Knowing doesn't fix it.</b> You were told up front that the game shows you a number first. Most people are still pulled. Warning people about anchoring barely reduces it.</p>
-    <p><b>How to read your score.</b> The gap compares your guesses after high numbers with your guesses after low numbers, relative to the true answers. Zero means the number had no effect. The pull says how far you moved toward the number: 0% means not at all, 100% means you just repeated it.</p>
-    <p><b>What this can't tell you.</b> Twelve questions is a small sample, and how much you already knew matters. If you knew an answer cold, the number had nothing to pull on. The history table is more reliable than one run.</p>
+  <details class="sci-box">
+    <summary>The science behind this game</summary>
+    <h3 class="sci-h" style="border:0;padding-top:0">What it measures</h3>
+    <p>This game measures anchoring: how much a number you've just seen pulls your estimate toward it, even when the number is random. Your score, the pull, is how far your guesses moved toward the game's numbers. 0% means no effect. 100% means you copied them.</p>
+    <p><b>How this compares to the lab.</b> Researchers often use an "anchoring index." It compares groups of people who saw a high anchor with groups who saw a low one, and asks how much of the gap between the anchors shows up in their answers <sup class="c"><a href="#src7">[7]</a></sup><sup class="c"><a href="#src8">[8]</a></sup>. This game uses the same idea for one person, across 12 questions: 6 with a high number and 6 with a low one. It measures distances on a ratio scale, so being off by double counts the same for a small answer as for a big one. That's a small difference from the lab version.</p>
 
-    <h3 class="sci-h">The science</h3>
-    <ul class="sci">
-      <li><b>The original wheel of fortune.</b> People watched a wheel stop on 10 or 65, then estimated the share of African countries in the United Nations. The low group's typical guess was 25%, the high group's 45%. The wheel was rigged, and it still moved them. <span>Tversky and Kahneman, 1974</span></li>
-      <li><b>Even absurd numbers work.</b> Asked whether Gandhi died before or after age 9, people then guessed he died at about 50 on average. Asked about age 140, they guessed about 67. He died at 78. <span>Strack and Mussweiler, 1997</span></li>
-      <li><b>Experts are not immune.</b> Real estate agents valued the same house higher when its listing price was higher. Most said they hadn't used the listing price at all. <span>Northcraft and Neale, 1987</span></li>
-      <li><b>Not even judges.</b> Experienced judges rolled loaded dice that landed on 3 or 9, then sentenced a hypothetical shoplifter. Those who rolled 9 gave longer sentences, about 8 months versus 5. <span>Englich, Mussweiler and Strack, 2006</span></li>
-      <li><b>It holds up.</b> In a large project that re-ran classic psychology studies across dozens of labs, anchoring was one of the strongest and most reliable effects. <span>Klein and colleagues, Many Labs, 2014</span></li>
-      <li><b>Warnings barely help.</b> Telling people about anchoring in advance did little to reduce it. <span>Wilson and colleagues, 1996</span></li>
-      <li><b>First offers anchor deals.</b> In negotiations, whoever makes the first offer tends to pull the final price toward it. Thinking about the other side's alternatives weakened the pull. <span>Galinsky and Mussweiler, 2001</span></li>
-      <li><b>Not every famous result is as strong as reported.</b> A well-known study found people with higher Social Security digits bid more for products. Later replications found a much smaller effect. Anchoring is real, but its size depends on the setting. <span>Ariely, Loewenstein and Prelec, 2003; Maniadis, Tufano and List, 2014</span></li>
-    </ul>
-    <p><b>What's still debated.</b> Researchers disagree on the main cause. One view is that we adjust from the number and stop too early. Another is that the "more or less" question makes facts near the number easier to recall. Studies support both, and they likely work together.</p>
+    <h3 class="sci-h">What the research says</h3>
+    <p><b>Even a spinning wheel works.</b> People watched a wheel of fortune give a number, then estimated the share of African countries in the United Nations. Those who saw 10 gave a median guess of 25%. Those who saw 65 gave a median of 45% <sup class="c"><a href="#src1">[1]</a></sup>.</p>
+    <p><b>Even absurd numbers work.</b> Asked whether Gandhi was older or younger than 140 when he died, people's average guess was 66.7. Asked about 9, the average was 50.1 <sup class="c"><a href="#src2">[2]</a></sup>.</p>
+    <p><b>The question primes you.</b> One explanation is that comparing the answer with the anchor brings anchor-consistent facts to mind, which then shape your estimate <sup class="c"><a href="#src2">[2]</a></sup>.</p>
+    <p><b>Experience doesn't protect you.</b> Junior lawyers rolled dice that were rigged to suggest a short or long sentence. Those who saw the higher number gave longer sentences on average, 7.81 months versus 5.28. Across these studies, expertise and experience didn't reduce the effect <sup class="c"><a href="#src3">[3]</a></sup>.</p>
+    <p><b>Warnings help only a little.</b> Telling people about anchoring in advance helped somewhat, but didn't undo the effect <sup class="c"><a href="#src4">[4]</a></sup>.</p>
+    <p><b>First offers anchor deals.</b> In negotiations, the first offer strongly predicted the final price. Thinking about the other side's alternatives, or about your own target, cancelled that effect <sup class="c"><a href="#src5">[5]</a></sup>.</p>
+
+    <h3 class="sci-h">Adult norms</h3>
+    <p>One large online experiment found an average anchoring index of 0.61, and it reports an earlier classic study finding 0.49 <sup class="c"><a href="#src8">[8]</a></sup>. So people typically move roughly halfway toward an anchor. The 49% to 61% range used in this game is our summary of those two figures, not an official norm. Lab studies set anchors differently, so treat the comparison as approximate.</p>
+
+    <h3 class="sci-h">What's still debated</h3>
+    <p>Researchers disagree on why anchoring happens. One view is that people start from the anchor and stop adjusting once an answer seems plausible. That has been shown for anchors people come up with themselves <sup class="c"><a href="#src6">[6]</a></sup>. Another is the priming explanation above <sup class="c"><a href="#src2">[2]</a></sup>. They may work together.</p>
+    <p><b>Not every famous result is as strong as first reported.</b> A well-known study showed that arbitrary numbers, sometimes taken from people's Social Security numbers, shaped how much they valued things <sup class="c"><a href="#src9">[9]</a></sup>. When researchers re-ran a different experiment from that study, the effect was less than a third the size <sup class="c"><a href="#src10">[10]</a></sup>. Anchoring itself is well established. How big it is depends on the setting.</p>
+
+    <h3 class="sci-h">Limits of this game</h3>
+    <p><b>One round is noisy.</b> In our simulation of 5,000 rounds by players with a known pull, one round's score landed within about ±31 points of the true value 95% of the time. Most of that luck comes from how much you happen to know about the 12 questions. Pooling 7 rounds narrows it to about ±12 points. The scoring itself showed no lean high or low.</p>
+    <p><b>Questions can only be fresh once.</b> The bank has 84 questions, enough for 7 rounds. After that, repeats test memory, so they don't count. Rounds played before this update all used the same 12 questions, so only the first of those counts.</p>
+    <p><b>Knowledge matters.</b> If you know an answer cold, the number has nothing to pull on. The simulation's knowledge levels are our assumptions, not measured data.</p>
+    <h3 class="sci-h">Sources</h3>
+    <ol class="ml-src" id="sources"></ol>
   </details>
 
-  <p class="foot">Based on Tversky and Kahneman 1974, Strack and Mussweiler 1997, and the Many Labs replication project.</p>
+  <p class="foot">Scores are saved on this device only. Nothing is sent anywhere.</p>
 </div>
 
 <script>
+var ML=(function(){
+  function load(k){try{var a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a:[]}catch(e){return []}}
+  function get(k){try{var v=localStorage.getItem(k);return v==null?null:JSON.parse(v)}catch(e){return null}}
+  function put(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+  function del(k){try{localStorage.removeItem(k)}catch(e){}}
+  function mean(a){if(!a.length)return null;var s=0;a.forEach(function(x){s+=x});return s/a.length}
+  function sd(a){if(a.length<2)return null;var m=mean(a),s=0;a.forEach(function(x){s+=(x-m)*(x-m)});return Math.sqrt(s/(a.length-1))}
+  /* runs are stored newest first. settle() returns a chronological view of the valid rounds. */
+  function settle(runs,N,val,ok){
+    var v=runs.slice().reverse().filter(function(r){return (!ok||ok(r))&&typeof val(r)==="number"&&isFinite(val(r))}).map(val);
+    var n=v.length,o={n:n,N:N,vals:v,need:Math.max(0,N-n),avg:mean(v),latest:n?v[n-1]:null};
+    if(n>=N){var last=v.slice(-N);o.settled=mean(last);o.spread=sd(last);
+      if(n>=2*N){o.firstN=mean(v.slice(0,N));o.latestN=mean(last)}}
+    return o}
+  function plural(n,w){return n+" "+w+(n===1?"":"s")}
+  /* Hold to quit: about 1 second press with a fill bar. Esc twice on a computer. */
+  function holdToQuit(btn,onQuit){
+    var t=null,fill=btn.querySelector("i"),escAt=0,hint=btn.parentNode.querySelector(".ml-quit-hint");
+    function cancel(){if(t){clearTimeout(t);t=null}btn.classList.remove("holding");if(fill)fill.style.transition="none",fill.style.width="0"}
+    function start(e){e.preventDefault();cancel();btn.classList.add("holding");
+      if(fill){void fill.offsetWidth;fill.style.transition="width 1s linear";fill.style.width="100%"}
+      t=setTimeout(function(){t=null;cancel();onQuit()},1000)}
+    btn.addEventListener("pointerdown",start);
+    ["pointerup","pointerleave","pointercancel"].forEach(function(ev){btn.addEventListener(ev,cancel)});
+    btn.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")e.preventDefault()});
+    document.addEventListener("keydown",function(e){
+      if(e.key!=="Escape"||btn.closest("[hidden]")||btn.hidden)return;
+      var now=Date.now();
+      if(now-escAt<1500){escAt=0;if(hint)hint.textContent="";onQuit()}
+      else{escAt=now;if(hint){hint.textContent="Press Esc again to quit";setTimeout(function(){if(Date.now()-escAt>=1400)hint.textContent=""},1500)}}})}
+  /* Reset link with an on-page Cancel / Erase confirmation. Only removes the keys given. */
+  function resetLink(wrap,keys,label,onDone){
+    function idle(){wrap.innerHTML='<button class="ml-link" type="button">'+label+'</button>';
+      wrap.firstChild.addEventListener("click",ask)}
+    function ask(){wrap.innerHTML='<div class="ml-confirm"><span>Erase all saved scores for this game on this device? This can\'t be undone.</span><div class="ml-confirm-row"><button class="ml-btn ghost" type="button">Cancel</button><button class="ml-btn danger" type="button">Erase</button></div></div>';
+      var b=wrap.querySelectorAll("button");b[0].addEventListener("click",idle);
+      b[1].addEventListener("click",function(){keys.forEach(del);idle();if(onDone)onDone()})}
+    idle()}
+  function saveSummary(id,o){o.d=Date.now();put("mindlab.summary."+id,o)}
+  function sources(el,list){el.innerHTML=list.map(function(s,i){
+    return '<li id="src'+(i+1)+'"><span class="n">['+(i+1)+']</span> '+s.c+(s.doi?' <a href="https://doi.org/'+s.doi+'" target="_blank" rel="noopener">https://doi.org/'+s.doi+'</a>':'')+'</li>'}).join("")}
+  /* Small trend chart of round scores with the settled band. */
+  function trend(svg,vals,N,fmt,color){
+    var W=480,H=150,L=44,R=12,T=12,B=26;if(!vals.length){svg.innerHTML="";return}
+    var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals);var pad=(hi-lo)*0.15||Math.abs(hi)*0.1||1;lo-=pad;hi+=pad;
+    function X(i){return vals.length===1?(L+W-R)/2:L+i/(vals.length-1)*(W-L-R)}
+    function Y(v){return T+(hi-v)/(hi-lo)*(H-T-B)}
+    var g="",ticks=[lo,(lo+hi)/2,hi];
+    ticks.forEach(function(v){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+fmt(v)+'</text>'});
+    if(vals.length>=N){var x0=X(vals.length-N),x1=X(vals.length-1);g+='<rect x="'+(x0-6)+'" y="'+T+'" width="'+(x1-x0+12)+'" height="'+(H-T-B)+'" fill="var(--line)" opacity=".45" rx="6"/>';
+      var m=mean(vals.slice(-N));g+='<line x1="'+(x0-6)+'" x2="'+(x1+6)+'" y1="'+Y(m)+'" y2="'+Y(m)+'" stroke="'+color+'" stroke-width="2" stroke-dasharray="5 4"/>'}
+    g+='<polyline points="'+vals.map(function(v,i){return X(i)+","+Y(v)}).join(" ")+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round"/>';
+    vals.forEach(function(v,i){g+='<circle cx="'+X(i)+'" cy="'+Y(v)+'" r="3.5" fill="'+color+'"/>'});
+    g+='<text x="'+L+'" y="'+(H-6)+'">first round</text><text x="'+(W-R)+'" y="'+(H-6)+'" text-anchor="end">latest</text>';
+    svg.innerHTML=g}
+  return {load:load,get:get,put:put,del:del,mean:mean,sd:sd,settle:settle,plural:plural,holdToQuit:holdToQuit,resetLink:resetLink,saveSummary:saveSummary,sources:sources,trend:trend}
+})();
+
+var BANK=[
+/* original 12 (ids 0-11) */
+{q:"How tall is the Eiffel Tower?",u:"in feet",a:1083},
+{q:"How tall is Mount Everest?",u:"in feet",a:29032},
+{q:"How far is the Moon from Earth, on average?",u:"in miles",a:238855},
+{q:"How many countries are in Africa?",u:"countries",a:54},
+{q:"How many bones are in the adult human body?",u:"bones",a:206},
+{q:"How many elements are on the periodic table?",u:"elements",a:118},
+{q:"How fast does sound travel through air at sea level?",u:"in miles per hour, at room temperature",a:767},
+{q:"How long is an African elephant pregnant?",u:"in months",a:22},
+{q:"How many US states border Canada?",u:"states",a:13},
+{q:"How tall is the Burj Khalifa in Dubai?",u:"in feet",a:2717},
+{q:"How many bones are in one human hand, including the wrist?",u:"bones",a:27},
+{q:"What is Earth's average diameter?",u:"in miles",a:7918},
+/* exact math and unit questions */
+{q:"What is 8 × 7 × 6 × 5 × 4 × 3 × 2 × 1?",u:"just estimate, don't calculate",a:40320},
+{q:"What is 2 to the 20th power?",u:"just estimate",a:1048576},
+{q:"What is 3 to the 10th power?",u:"just estimate",a:59049},
+{q:"How many minutes are in a week?",u:"minutes",a:10080},
+{q:"How many hours are in a 365-day year?",u:"hours",a:8760},
+{q:"How many seconds are in a day?",u:"seconds",a:86400},
+{q:"How many inches are in a mile?",u:"inches",a:63360},
+{q:"How many feet are in 10 miles?",u:"feet",a:52800},
+{q:"How many ounces are in a US ton of 2,000 pounds?",u:"ounces",a:32000},
+{q:"How many different 5-card hands can be dealt from a standard 52-card deck?",u:"hands",a:2598960},
+{q:"How many ways can 6 different books be arranged on a shelf?",u:"arrangements",a:720},
+{q:"What is 999 × 999?",u:"just estimate",a:998001},
+{q:"How many seconds are in a week?",u:"seconds",a:604800},
+{q:"What do you get if you add up every whole number from 1 to 100?",u:"just estimate",a:5050},
+{q:"What is 2 to the 30th power?",u:"just estimate",a:1073741824},
+{q:"What is 7 to the 5th power?",u:"just estimate",a:16807},
+{q:"How many squares of all sizes are on a chessboard, counting the big ones made of smaller squares?",u:"squares",a:204},
+{q:"If 30 people each shake hands with everyone else once, how many handshakes is that?",u:"handshakes",a:435},
+{q:"What is 25 × 25 × 25?",u:"just estimate",a:15625},
+{q:"How many different 3-letter codes can be made from A to Z if letters can repeat?",u:"codes",a:17576},
+{q:"How many seconds are in a 30-day month?",u:"seconds",a:2592000},
+{q:"What is 12 × 11 × 10 × 9 × 8 × 7 × 6 × 5 × 4 × 3 × 2 × 1?",u:"just estimate",a:479001600},
+{q:"What is 6 to the 6th power?",u:"just estimate",a:46656},
+{q:"How many minutes are in a 365-day year?",u:"minutes",a:525600},
+{q:"What is 13 × 17 × 19?",u:"just estimate",a:4199},
+{q:"How many ways are there to pick 6 numbers out of 49, ignoring order?",u:"combinations",a:13983816},
+{q:"What is 4 to the 8th power?",u:"just estimate",a:65536},
+{q:"What do you get if you add up every whole number from 1 to 1,000?",u:"just estimate",a:500500},
+{q:"How many dots are on a pair of standard dice, both dice added together?",u:"dots",a:42},
+/* stable facts */
+{q:"How tall is the Statue of Liberty, from the ground to the tip of the torch?",u:"in feet",a:305},
+{q:"How long is the Golden Gate Bridge in total?",u:"in feet",a:8981},
+{q:"How far is the Sun from Earth, on average?",u:"in miles",a:93000000},
+{q:"How fast does light travel?",u:"in miles per second",a:186282},
+{q:"What is the Moon's diameter?",u:"in miles",a:2159},
+{q:"What is Jupiter's diameter at its equator?",u:"in miles",a:88846},
+{q:"How tall is Mount Kilimanjaro?",u:"in feet",a:19341},
+{q:"How many US states have a coastline on the Pacific Ocean?",u:"states",a:5},
+{q:"How many countries are in South America?",u:"countries",a:12},
+{q:"How tall is the clock tower in London that holds Big Ben?",u:"in feet",a:316},
+{q:"How tall is the Empire State Building, to the tip of its antenna?",u:"in feet",a:1454},
+{q:"What is the area of Texas?",u:"in square miles",a:268596},
+{q:"How long is an NFL field, including both end zones?",u:"in yards",a:120},
+{q:"How much does a US penny made since 1982 weigh?",u:"in grams",a:2.5},
+{q:"How many teeth does a full adult set have, including wisdom teeth?",u:"teeth",a:32},
+{q:"How tall is the Washington Monument?",u:"in feet",a:555},
+{q:"How tall is the Leaning Tower of Pisa?",u:"in feet",a:191},
+{q:"How long is the island of Manhattan?",u:"in miles",a:13.4},
+{q:"How many time zones does Russia have?",u:"time zones",a:11},
+{q:"How many cards are in a standard tarot deck?",u:"cards",a:78},
+{q:"How many panels are on a classic black-and-white soccer ball?",u:"panels",a:32},
+{q:"How many colored squares are on the faces of a standard Rubik's Cube?",u:"squares",a:54},
+{q:"How many strings does a standard concert pedal harp have?",u:"strings",a:47},
+{q:"How many main islands make up the state of Hawaii?",u:"islands",a:8},
+{q:"How many lines are in a sonnet?",u:"lines",a:14},
+{q:"How many players does a rugby union team have on the field?",u:"players",a:15},
+{q:"How many squares are on a Scrabble board?",u:"squares",a:225},
+{q:"How many black keys are on a standard piano?",u:"keys",a:36},
+{q:"How many tiles, including blanks, come in a standard English Scrabble set?",u:"tiles",a:100},
+{q:"How many floors does the Empire State Building have?",u:"floors",a:102},
+{q:"How tall is the Space Needle in Seattle?",u:"in feet",a:605},
+{q:"How long is the Panama Canal?",u:"in miles",a:50},
+{q:"How deep is Lake Baikal at its deepest point?",u:"in feet",a:5387},
+{q:"How tall is Angel Falls in Venezuela?",u:"in feet",a:3212},
+{q:"How tall is the Christ the Redeemer statue in Rio, not counting its base?",u:"in feet",a:98},
+{q:"How long is a Boeing 747-400 jet?",u:"in feet",a:231},
+{q:"What is the wingspan of a Boeing 747-400 jet?",u:"in feet",a:211},
+{q:"How many US state names have only 4 letters?",u:"states",a:3},
+{q:"What is the inside diameter of a regulation basketball rim?",u:"in inches",a:18},
+{q:"How far apart are the bases in Major League Baseball?",u:"in feet",a:90},
+{q:"How far is the pitcher's rubber from home plate in Major League Baseball?",u:"in feet",a:60.5},
+{q:"How long is a bowling lane, from the foul line to the head pin?",u:"in feet",a:60},
+{q:"How many hours are in 4 weeks?",u:"hours",a:672}
+];
+
 (function(){
-  var BANK=[
-    {q:"How tall is the Eiffel Tower?",u:"in feet",a:1083},
-    {q:"How tall is Mount Everest?",u:"in feet",a:29032},
-    {q:"How far is the Moon from Earth, on average?",u:"in miles",a:238900},
-    {q:"How many countries are in Africa?",u:"countries",a:54},
-    {q:"How many bones are in the adult human body?",u:"bones",a:206},
-    {q:"How many elements are on the periodic table?",u:"elements",a:118},
-    {q:"How fast does sound travel through air at sea level?",u:"in miles per hour, at room temperature",a:767},
-    {q:"How long is an African elephant pregnant?",u:"in months",a:22},
-    {q:"How many US states border Canada?",u:"states",a:13},
-    {q:"How tall is the Burj Khalifa in Dubai?",u:"in feet",a:2717},
-    {q:"How many bones are in one human hand, including the wrist?",u:"bones",a:27},
-    {q:"What is Earth's diameter?",u:"in miles",a:7918}
+  var KEY="sticky.runs",SEENKEY="mindlab.sn.seen",SUMKEY="mindlab.summary.sn",N=7,PER=12,LUCK=31,MARGIN=12,ROUND_SD=16,KEEP=200,NORM_LO=49,NORM_HI=61;
+  var SOURCES=[
+    {c:"Tversky, A., &amp; Kahneman, D. (1974). Judgment under uncertainty: Heuristics and biases. <i>Science, 185</i>(4157), 1124&ndash;1131.",doi:"10.1126/science.185.4157.1124"},
+    {c:"Strack, F., &amp; Mussweiler, T. (1997). Explaining the enigmatic anchoring effect: Mechanisms of selective accessibility. <i>Journal of Personality and Social Psychology, 73</i>(3), 437&ndash;446.",doi:"10.1037/0022-3514.73.3.437"},
+    {c:"Englich, B., Mussweiler, T., &amp; Strack, F. (2006). Playing dice with criminal sentences: The influence of irrelevant anchors on experts’ judicial decision making. <i>Personality and Social Psychology Bulletin, 32</i>(2), 188&ndash;200.",doi:"10.1177/0146167205282152"},
+    {c:"Wilson, T. D., Houston, C. E., Etling, K. M., &amp; Brekke, N. (1996). A new look at anchoring effects: Basic anchoring and its antecedents. <i>Journal of Experimental Psychology: General, 125</i>(4), 387&ndash;402.",doi:"10.1037/0096-3445.125.4.387"},
+    {c:"Galinsky, A. D., &amp; Mussweiler, T. (2001). First offers as anchors: The role of perspective-taking and negotiator focus. <i>Journal of Personality and Social Psychology, 81</i>(4), 657&ndash;669.",doi:"10.1037/0022-3514.81.4.657"},
+    {c:"Epley, N., &amp; Gilovich, T. (2006). The anchoring-and-adjustment heuristic: Why the adjustments are insufficient. <i>Psychological Science, 17</i>(4), 311&ndash;318.",doi:"10.1111/j.1467-9280.2006.01704.x"},
+    {c:"Jacowitz, K. E., &amp; Kahneman, D. (1995). Measures of anchoring in estimation tasks. <i>Personality and Social Psychology Bulletin, 21</i>(11), 1161&ndash;1166.",doi:"10.1177/01461672952111004"},
+    {c:"Yasseri, T., &amp; Reher, J. (2022). Fooled by facts: Quantifying anchoring bias through a large-scale experiment. <i>Journal of Computational Social Science, 5</i>(1), 1001&ndash;1021.",doi:"10.1007/s42001-021-00158-0"},
+    {c:"Ariely, D., Loewenstein, G., &amp; Prelec, D. (2003). “Coherent arbitrariness”: Stable demand curves without stable preferences. <i>Quarterly Journal of Economics, 118</i>(1), 73&ndash;106.",doi:"10.1162/00335530360535153"},
+    {c:"Maniadis, Z., Tufano, F., &amp; List, J. A. (2014). One swallow doesn’t make a summer: New evidence on anchoring effects. <i>American Economic Review, 104</i>(1), 277&ndash;290.",doi:"10.1257/aer.104.1.277"}
   ];
   var S,raf=null;
   function $(id){return document.getElementById(id)}
   function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
   function round2(x){if(x<10)return Math.max(1,Math.round(x));var p=Math.pow(10,Math.floor(Math.log10(x))-1);return Math.round(x/p)*p}
   function fmt(x){return x.toLocaleString("en-US",{maximumFractionDigits:1})}
-  function fresh(){var qs=shuffle(BANK.slice()),kinds=shuffle([0,0,0,0,0,0,1,1,1,1,1,1]);
-    return {i:0,items:qs.map(function(b,k){var hi=kinds[k]===1,f=hi?2+Math.random()*0.8:0.35+Math.random()*0.15;
+  /* Old rounds (before this update) all used the same 12 questions, so only the first one was a fresh test. */
+  function validator(runs){var olds=runs.filter(function(r){return r.v!==2}),first=olds.length?olds[olds.length-1]:null;
+    return function(r){return r.v===2?!r.rep:r===first}}
+  function seen(){var s=ML.get(SEENKEY);if(Array.isArray(s))return s;
+    var runs=ML.load(KEY);s=runs.length?[0,1,2,3,4,5,6,7,8,9,10,11]:[];ML.put(SEENKEY,s);return s}
+  function pickQuestions(){
+    var sn=seen(),unseen=BANK.map(function(_,i){return i}).filter(function(i){return sn.indexOf(i)<0});
+    if(unseen.length>=PER)return {ids:shuffle(unseen).slice(0,PER),rep:false};
+    var rest=sn.slice(0,PER-unseen.length);return {ids:shuffle(unseen.concat(rest)),rep:true}}
+  function fresh(){var pk=pickQuestions(),kinds=shuffle([0,0,0,0,0,0,1,1,1,1,1,1]);
+    return {i:0,rep:pk.rep,ids:pk.ids,active:false,items:pk.ids.map(function(id,k){var b=BANK[id],hi=kinds[k]===1,f=hi?2+Math.random()*0.8:0.35+Math.random()*0.15;
       var anc=round2(b.a*f);if(anc===b.a)anc=hi?anc+1:Math.max(1,anc-1);
-      return {q:b.q,u:b.u,a:b.a,hi:hi,anc:anc,dir:null,est:null}}),stage:"intro"}}
+      return {q:b.q,u:b.u,a:b.a,hi:hi,anc:anc,dir:null,est:null}})}}
 
-  function dots(){var h="";for(var k=0;k<12;k++)h+='<i class="'+(k<S.i?"on":"")+'"></i>';$("dots").innerHTML=h}
-  function spin(target){
-    var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,el=$("reel");
-    cancelAnimationFrame(raf);
+  function dots(){var h="";for(var k=0;k<PER;k++)h+='<i class="'+(k<S.i?"on":"")+'"></i>';$("dots").innerHTML=h}
+  function spin(target){var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches,el=$("reel");cancelAnimationFrame(raf);
     if(reduce){el.textContent=fmt(target);return}
-    var t0=null,dur=700,digits=String(target).length;
-    function f(now){if(t0===null)t0=now;var p=(now-t0)/dur;
-      if(p>=1){el.textContent=fmt(target);return}
-      var r=Math.floor(Math.pow(10,digits-1)+Math.random()*9*Math.pow(10,digits-1));el.textContent=fmt(r);raf=requestAnimationFrame(f)}
+    var t0=null,dur=700,digits=String(Math.round(target)).length;
+    function f(now){if(t0===null)t0=now;var p=(now-t0)/dur;if(p>=1){el.textContent=fmt(target);return}
+      el.textContent=fmt(Math.floor(Math.pow(10,digits-1)+Math.random()*9*Math.pow(10,digits-1)));raf=requestAnimationFrame(f)}
     raf=requestAnimationFrame(f)}
-
+  function bankNote(){var left=BANK.length-seen().length;
+    $("bankNote").textContent=left>=PER?ML.plural(left,"unseen question")+" left, enough for "+ML.plural(Math.floor(left/PER),"more fresh round")+".":"You've seen almost every question. New rounds will include repeats, which test memory more than anchoring, so they won't count toward your settled score."}
   function show(){
-    var it=S.items[S.i];
-    $("intro").hidden=true;$("start").hidden=true;$("topRow").hidden=false;$("card").hidden=false;
-    $("step").textContent="Question "+(S.i+1)+" of 12";$("prog").textContent="";
+    var it=S.items[S.i];S.active=true;$("quitbar").hidden=false;
+    $("start").hidden=true;$("topRow").hidden=false;$("card").hidden=false;$("bankNote").hidden=true;
+    $("step").textContent="Question "+(S.i+1)+" of "+PER;$("prog").textContent="";
     $("q").textContent=it.q;$("unit").textContent="Answer "+it.u;
     $("stageA").hidden=false;$("stageB").hidden=true;$("less").className="btn pick";$("more").className="btn pick";
-    $("guess").value="";$("err").textContent="";
-    spin(it.anc);dots()}
+    $("guess").value="";$("err").textContent="";spin(it.anc);dots()}
   function pick(d){var it=S.items[S.i];it.dir=d;$("less").className="btn pick"+(d==="less"?" on":"");$("more").className="btn pick"+(d==="more"?" on":"");
     $("stageB").hidden=false;setTimeout(function(){$("guess").focus()},50)}
   function parse(s){s=String(s).replace(/[,\s]/g,"");if(!/^\d*\.?\d+$/.test(s))return null;var v=parseFloat(s);return v>0?v:null}
   function submit(){var v=parse($("guess").value);
     if(v===null){$("err").textContent="Enter a number above zero, like 250 or 12,000.";return}
-    S.items[S.i].est=v;S.i++;
-    if(S.i>=12){results();return}
-    show()}
+    S.items[S.i].est=v;S.i++;if(S.i>=PER){results();return}show()}
+  function quit(){cancelAnimationFrame(raf);reset();$("bankNote").hidden=false;$("bankNote").textContent="Stopped. Nothing was saved, and those questions stay unseen."}
+  ML.holdToQuit($("quit"),quit);
 
-  function mean(a){var s=0;a.forEach(function(x){s+=x});return a.length?s/a.length:0}
-  function results(){
-    dots();$("card").hidden=true;$("topRow").hidden=true;
-    var H=S.items.filter(function(x){return x.hi}),L=S.items.filter(function(x){return !x.hi});
+  function score(items){var H=items.filter(function(x){return x.hi}),L=items.filter(function(x){return !x.hi});
     function le(x){return Math.log(x.est/x.a)} function la(x){return Math.log(x.anc/x.a)}
-    var mH=mean(H.map(le)),mL=mean(L.map(le)),aH=mean(H.map(la)),aL=mean(L.map(la));
-    var ratio=Math.exp(mH-mL),pull=(mH-mL)/(aH-aL);
-    var gapPct=Math.round((ratio-1)*100),pullPct=Math.round(pull*100);
-    $("gap").textContent=(gapPct>=0?"+":"−")+Math.abs(gapPct)+"%";
-    $("pullv").textContent=pullPct+"%";
-    if(gapPct>=20){$("verdict").textContent="The numbers pulled you. Your guesses ran "+gapPct+"% higher after high numbers.";}
-    else if(gapPct>0){$("verdict").textContent="A small pull this run: "+gapPct+"% higher after high numbers.";}
-    else{$("verdict").textContent="No pull this run. The numbers didn't move your guesses.";}
-    $("meaning").textContent=pullPct>0?("You moved about "+pullPct+"% of the way toward the game's number. In studies with this kind of setup, people typically move about halfway, though that figure comes from groups, not one person's 12 answers."):"You didn't move toward the game's numbers on average. That's unusual. It can happen if you knew many answers, or by chance in 12 questions.";
+    var mH=ML.mean(H.map(le)),mL=ML.mean(L.map(le)),aH=ML.mean(H.map(la)),aL=ML.mean(L.map(la));
+    return {mH:mH,mL:mL,ratio:Math.exp(mH-mL),pull:(mH-mL)/(aH-aL)*100}}
+
+  function results(){
+    S.active=false;$("quitbar").hidden=true;dots();$("card").hidden=true;$("topRow").hidden=true;
+    var sc=score(S.items),gapPct=Math.round((sc.ratio-1)*100),pullPct=Math.round(sc.pull);
+    var sn=seen();S.ids.forEach(function(id){var k=sn.indexOf(id);if(k>=0)sn.splice(k,1);sn.push(id)});ML.put(SEENKEY,sn);
+    var runs=ML.load(KEY);runs.unshift({d:Date.now(),v:2,g:gapPct,p:pullPct,q:S.ids,rep:S.rep});runs=runs.slice(0,KEEP);ML.put(KEY,runs);
+    var st=ML.settle(runs,N,function(r){return r.p},validator(runs));
+    $("gap").textContent=(gapPct>=0?"+":"−")+Math.abs(gapPct)+"%";$("pullv").textContent=pullPct+"%";
+    $("sprog").textContent=st.settled!=null?"Settled":Math.min(st.n,N)+" of "+N;
+    $("sprogSub").textContent=S.rep?"This round had repeats, so it didn't count":(st.settled!=null?"Settled pull: "+Math.round(st.settled)+"%":ML.plural(st.need,"more round")+" to go");
+    $("left").textContent=String(Math.max(0,BANK.length-sn.length));
+    $("verdict").textContent=gapPct>=20?"The numbers pulled you. Your guesses ran "+gapPct+"% higher after high numbers.":(gapPct>0?"A small pull this round: "+gapPct+"% higher after high numbers.":"No pull this round. The numbers didn't move your guesses.");
+    $("meaning").textContent=pullPct>0?"You moved about "+pullPct+"% of the way toward the game's number.":"You didn't move toward the game's numbers on average this round.";
     $("how").textContent="How the numbers were picked: for 6 questions the number was set at random well below the true answer (about a third to a half of it). For the other 6 it was set well above (about 2 to 3 times it). The game didn't know your guess. It only knew the answer.";
-    $("plain").innerHTML=plain(gapPct,pullPct,ratio,mH,mL);
-    chart(mH,mL);
+    chart(sc.mH,sc.mL);
+    $("plain").innerHTML=plain(gapPct,pullPct,sc.ratio,sc.mH,sc.mL);
     $("ans").innerHTML=S.items.map(function(x){return "<tr><td>"+x.q.replace(/\?.*$/,"?")+"</td><td><span class=\""+(x.hi?"tagH":"tagL")+"\">"+(x.hi?"High":"Low")+"</span> "+fmt(x.anc)+"</td><td>"+fmt(x.est)+"</td><td>"+fmt(x.a)+"</td></tr>"}).join("");
-    $("results").hidden=false;
-    save({d:Date.now(),g:gapPct,p:pullPct});
+    $("results").hidden=false;hist(runs);status();
     $("results").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
 
   function plain(gapPct,pullPct,ratio,mH,mL){
     var p=[];
     if(gapPct>=20)p.push("<b>The short version.</b> When the game showed you a big number, you guessed big. When it showed a small number, you guessed small. The number had nothing to do with the real answer, but it still steered you. That's anchoring.");
-    else if(gapPct>0)p.push("<b>The short version.</b> The game's numbers nudged your guesses a little, but not much this time. Big numbers led to slightly bigger guesses.");
-    else p.push("<b>The short version.</b> This time, the game's numbers didn't steer your guesses. That's uncommon. It can happen if you already knew many of the answers.");
+    else if(gapPct>0)p.push("<b>The short version.</b> The game's numbers nudged your guesses a little this round.");
+    else p.push("<b>The short version.</b> This round, the game's numbers didn't steer your guesses. That's uncommon.");
     var side=function(m){return Math.abs(m)<0.1?"near the line":(m>0?"to the right, meaning too high":"to the left, meaning too low")};
-    p.push("<b>Reading the chart.</b> Each dot is one of your guesses. The dashed line in the middle is the right answer. Dots to the right are guesses that were too high, and dots to the left were too low. Orange dots came after a high number, blue dots after a low one. If the numbers had no effect, both colors would sit in the same place. Your orange dots landed "+side(mH)+", and your blue dots landed "+side(mL)+". The red marks show where each color landed on average.");
+    p.push("<b>Reading the chart.</b> Each dot is one of your guesses. The dashed line is the right answer. Dots to the right were too high, dots to the left too low. Orange dots came after a high number, blue dots after a low one. If the numbers had no effect, both colors would sit in the same place. Your orange dots landed "+side(mH)+", and your blue dots landed "+side(mL)+".");
     var times=ratio>=1.95?"about "+ratio.toFixed(1)+" times as big as":"about "+Math.round((ratio-1)*100)+"% bigger than";
-    if(gapPct>0)p.push("<b>The gap, "+(gapPct>=0?"+":"")+gapPct+"%.</b> Compared with the true answers, your guesses after a high number came out "+times+" your guesses after a low number. Same kinds of questions, same person. The only difference was the number you saw first.");
-    else p.push("<b>The gap, "+gapPct+"%.</b> Your guesses after high numbers were no bigger than your guesses after low numbers. A gap of zero means the numbers had no effect.");
-    p.push("<b>The pull, "+pullPct+"%.</b> Think of it as a tug-of-war between the true answer and the game's number. If you had ignored the number completely, you'd score 0%. If you had just copied it, you'd score 100%. "+(pullPct>=40&&pullPct<=60?"You landed near halfway, which is about where most people end up.":(pullPct>60?"You landed past halfway, so the number had more say than the truth.":(pullPct>0?"You landed under halfway, so the truth had more say than the number.":"You weren't pulled at all this time.")) ));
+    p.push(gapPct>0?"<b>The gap, +"+gapPct+"%.</b> Compared with the true answers, your guesses after a high number came out "+times+" your guesses after a low number. The only difference was the number you saw first.":"<b>The gap, "+gapPct+"%.</b> Your guesses after high numbers were no bigger than after low numbers.");
+    p.push("<b>The pull, "+pullPct+"%.</b> Think of it as a tug-of-war between the true answer and the game's number. Ignoring the number scores 0%. Copying it scores 100%. In research, people typically land around "+NORM_LO+"% to "+NORM_HI+"%.");
+    p.push("<b>How much to trust one round.</b> Luck alone, mostly how much you happened to know about these 12 questions, can move one round's pull about "+LUCK+" points up or down. Your settled score pools "+N+" rounds.");
     var best=null,bv=0;S.items.forEach(function(x){var v=x.hi?Math.log(x.est/x.a):-Math.log(x.est/x.a);if(v>bv){bv=v;best=x}});
-    if(best&&bv>Math.log(1.3))p.push("<b>Your clearest example.</b> "+best.q.replace(/\?.*$/,"")+"? The game showed you "+fmt(best.anc)+". You guessed "+fmt(best.est)+". The real answer is "+fmt(best.a)+". Your guess landed on the "+(best.hi?"high":"low")+" side, the same side as the game's number.");
-    p.push("<b>Why it matters.</b> This happens all the time outside this game. A price tag that says \"was $200, now $99.\" The first offer in a salary talk or a car deal. A home's listing price. In each case, the first number you see pulls your sense of what's fair. A simple defense: before you look at someone else's number, decide on your own.");
-    return p.map(function(t){return "<p>"+t+"</p>"}).join("");
-  }
+    if(best&&bv>Math.log(1.3))p.push("<b>Your clearest example.</b> "+best.q.replace(/\?.*$/,"")+"? The game showed you "+fmt(best.anc)+". You guessed "+fmt(best.est)+". The real answer is "+fmt(best.a)+". Your guess landed on the same side as the game's number.");
+    p.push("<b>Why it matters.</b> A price tag that says “was $200, now $99.” The first offer in a salary talk or a car deal. A home's listing price. The first number you see pulls your sense of what's fair. A simple defense: decide on your own number before you look at theirs.");
+    return p.map(function(x){return "<p>"+x+"</p>"}).join("")}
 
   function chart(mH,mL){
     var W=480,Hh=250,Lp=16,Rp=16,T=26,B=40,lim=Math.log(16);
@@ -305,23 +516,53 @@ details p b,.sci b{font-weight:500}
     [[mH,rowH.hi],[mL,rowH.lo]].forEach(function(m){g+='<line x1="'+X(m[0])+'" x2="'+X(m[0])+'" y1="'+(m[1]-16)+'" y2="'+(m[1]+16)+'" stroke="var(--pull)" stroke-width="3" stroke-linecap="round"/>'});
     $("chart").innerHTML=g}
 
-  function load(){try{return JSON.parse(localStorage.getItem("sticky.runs")||"[]")}catch(e){return []}}
-  function save(r){var a=load();a.unshift(r);a=a.slice(0,20);try{localStorage.setItem("sticky.runs",JSON.stringify(a))}catch(e){}hist(a)}
-  function hist(a){if(!a.length){$("histWrap").hidden=true;return}$("histWrap").hidden=false;
-    $("hist").innerHTML=a.slice(0,8).map(function(r){var d=new Date(r.d);
-      return "<tr><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+d.toTimeString().slice(0,5)+"</td><td>"+(r.g>=0?"+":"")+r.g+"%</td><td>"+r.p+"%</td></tr>"}).join("");
-    var s=0;a.forEach(function(r){s+=r.p});
-    $("histAvg").textContent=a.length>1?("Average pull across "+a.length+" runs: "+Math.round(s/a.length)+"%. Repeat runs reuse the same 12 questions, so later runs measure memory more than anchoring."):"The questions repeat on replays, so your first run is the truest test."}
+  function normWord(v){return v<NORM_LO?"less":(v<=NORM_HI?"typical":"more")}
+  function summaryText(st){
+    if(st.settled!=null)return "Numbers you're shown pull your estimates about "+Math.round(st.settled)+"% of the way toward them (settled over "+N+" fresh rounds; typical in research is about "+NORM_LO+"–"+NORM_HI+"%).";
+    if(st.n)return "Numbers you're shown have pulled your estimates about "+Math.round(st.avg)+"% of the way toward them so far. "+ML.plural(st.need,"more round")+" before this score is reliable.";
+    return "Not played yet."}
+  function status(){
+    var runs=ML.load(KEY),ok=validator(runs),st=ML.settle(runs,N,function(r){return r.p},ok),excluded=runs.filter(function(r){return !ok(r)}).length,h="";
+    var left=BANK.length-seen().length,freshLeft=Math.floor(left/PER);
+    if(st.settled==null){
+      h+='<h2>Still settling: '+ML.plural(st.need,"more round")+' before your score is reliable</h2>';
+      h+='<div class="ml-meter"><i style="width:'+(st.n/N*100)+'%"></i></div>';
+      h+='<p>One round can swing about '+LUCK+' points either way from luck alone. Pooling '+N+' rounds of fresh questions narrows that to about ±'+MARGIN+' points.</p>';
+      if(st.n)h+='<p><b>Average so far:</b> numbers pulled your guesses about '+Math.round(st.avg)+'% of the way toward them, over '+ML.plural(st.n,"fresh round")+'. This is an early read.</p>';
+      if(freshLeft<st.need)h+='<p class="note">The question bank only has enough fresh questions for '+ML.plural(freshLeft,"more round")+', so this score can\'t fully settle.</p>';
+    }else{
+      var s=Math.round(st.settled),nw=normWord(st.settled);
+      h+='<h2>What your scores mean so far</h2><p><span class="ml-pill ok">Settled</span> <span class="ml-pill">'+ML.plural(st.n,"fresh round")+'</span></p>';
+      h+='<p><b>Your settled pull: '+s+'%.</b> When someone puts a number in front of you before you estimate, your guess moves about '+s+'% of the way toward it. If someone said 1,000 and the truth was 100, you\'d tend to land near '+fmt(Math.round(Math.exp(Math.log(100)+st.settled/100*Math.log(10))))+'. This pools '+N+' rounds, so it should be within about ±'+MARGIN+' points of your true level.</p>';
+      h+='<p><b>Compared with adults.</b> In two studies, people moved about '+NORM_LO+'% and '+NORM_HI+'% of the way toward the anchor on average. That range is our summary of those two studies, not an official norm. '+(nw==="less"?'You\'re pulled less than typical.':(nw==="typical"?'You\'re in the typical range.':'You\'re pulled more than typical.'))+'</p>';
+      h+='<p><b>Consistency.</b> Your rounds varied by about ±'+ML.plural(Math.round(st.spread),"point")+' around your average. '+(st.spread<ROUND_SD*0.75?'That\'s steadier than luck alone usually allows.':(st.spread<=ROUND_SD*1.25?'That\'s about what luck alone produces.':'That\'s more than luck alone explains. Some question sets may have been easier for you than others.'))+'</p>';
+      h+='<p><b>Change over time.</b> Measuring change would need '+(2*N)+' fresh rounds. The bank has '+BANK.length+' questions, enough for '+N+', so this game can\'t show change over time without repeating questions.</p>';
+      var rec=runs.filter(ok).slice(0,N),gaps=ML.mean(rec.map(function(r){return r.g}));
+      h+='<p><b>What this looks like in practice.</b> On average, your guesses after a high number came out about '+(gaps>=95?((gaps/100+1).toFixed(1)+' times as big as'):(Math.round(gaps)+'% bigger than'))+' your guesses after a low number, relative to the true answers.</p>'}
+    h+='<svg class="ml-trend" id="trend" viewBox="0 0 480 150" role="img" aria-label="Your pull each round"></svg>';
+    if(excluded)h+='<p class="note">'+ML.plural(excluded,"round")+' reused questions you\'d already seen, so they stay in your history but aren\'t counted.</p>';
+    h+='<div id="resetWrap"></div>';
+    $("mlstatus").innerHTML=h;
+    ML.trend($("trend"),st.vals,N,function(v){return Math.round(v)+"%"},"var(--pull)");
+    ML.resetLink($("resetWrap"),[KEY,SEENKEY,SUMKEY],"Reset my scores",function(){status();hist([]);$("results").hidden=true;bankNote()});
+    var norm=st.settled!=null?{metric:"pull",value:Math.round(st.settled),lo:NORM_LO,hi:NORM_HI,verdict:nw==="less"?"better":(nw==="typical"?"typical":"worse"),label:"Typical pull in research: about "+NORM_LO+"–"+NORM_HI+"%"}:{label:"Typical pull in research: about "+NORM_LO+"–"+NORM_HI+"%"};
+    ML.saveSummary("sn",{settled:st.settled!=null,n:st.n,need:st.need,N:N,score:st.settled!=null?st.settled:st.avg,norm:norm,t:summaryText(st)})}
 
-  function reset(){S=fresh();cancelAnimationFrame(raf);$("intro").hidden=false;$("start").hidden=false;$("topRow").hidden=true;$("card").hidden=true;$("results").hidden=true;dots()}
-  $("start").addEventListener("click",function(){S.stage="play";show()});
+  function hist(a){if(!a.length){$("histWrap").hidden=true;return}$("histWrap").hidden=false;var ok=validator(a);
+    $("hist").innerHTML=a.slice(0,8).map(function(r){var d=new Date(r.d),x=!ok(r);
+      return "<tr"+(x?' class="rep"':'')+"><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+d.toTimeString().slice(0,5)+(x?" (repeat)":"")+"</td><td>"+(r.g>=0?"+":"")+r.g+"%</td><td>"+r.p+"%</td></tr>"}).join("");
+    $("histNote").textContent=a.some(function(r){return !ok(r)})?"Rows marked repeat reused questions you'd seen, so they aren't counted.":""}
+
+  function reset(){S=fresh();cancelAnimationFrame(raf);$("quitbar").hidden=true;$("start").hidden=false;$("topRow").hidden=true;$("card").hidden=true;$("results").hidden=true;$("bankNote").hidden=false;bankNote();dots()}
+  $("start").addEventListener("click",function(){show()});
   $("less").addEventListener("click",function(){pick("less")});
   $("more").addEventListener("click",function(){pick("more")});
   $("submit").addEventListener("click",submit);
   $("guess").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();submit()}});
   $("guess").addEventListener("input",function(){$("err").textContent=""});
   $("again").addEventListener("click",function(){reset();window.scrollTo({top:0})});
-  reset();hist(load());
+  ML.sources($("sources"),SOURCES);
+  reset();hist(ML.load(KEY));status();
 })();
 </script>
 
